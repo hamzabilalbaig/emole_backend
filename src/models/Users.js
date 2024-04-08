@@ -18,10 +18,6 @@ module.exports = function(sequelize, DataTypes) {
     password: {
       type: DataTypes.STRING(5000),
       allowNull: true
-    },
-    image: {
-      type: DataTypes.STRING(500),
-      allowNull: true
     }
   }, {
     sequelize,

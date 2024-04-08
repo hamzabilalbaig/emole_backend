@@ -18,6 +18,15 @@ const CloudwaysMySql = {
   port: 3306,
 };
 
+const aws = {
+  host: "emoleaws.c9usuwew0zh8.eu-north-1.rds.amazonaws.com", //"localhost",
+  dialect: "mysql",
+  database: "emole",
+  username: "admin",
+  password: "emoleadmin", //"75824",
+  port: 3306,
+};
+
 // const AzureServer = {
 //   host: "techappdb.postgres.database.azure.com", //"localhost",
 //   dialect: "postgres",
@@ -33,7 +42,7 @@ const CloudwaysMySql = {
 //   },
 // };
 
-const sequelizeServer = new Sequelize(CloudwaysMySql);
+const sequelizeServer = new Sequelize(aws);
 
 module.exports = {
   sequelizeServer,
