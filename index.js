@@ -30,8 +30,10 @@ app.use(function (req, res, next) {
 });
 
 var userRoutes = require("./src/routes/User.routes");
+var productRoutes = require("./src/routes/Products.routes");
 
 app.use("/api", userRoutes);
+app.use("/api", productRoutes);
 
 app.get("/", (req, res) => {
   res.send("hello from simple server :)");
