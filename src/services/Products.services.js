@@ -150,14 +150,16 @@ async function getProductsByPage(page, pageSize, filters) {
             };
 
             // Include related website data
-            filterOptions.include = [
-                {
-                    model: sequelizeServer.models.websites,
-                    as: "website",
-                    attributes: ["website_name", "website_url"],
-                }
-            ];
+
         }
+
+        filterOptions.include = [
+            {
+                model: sequelizeServer.models.websites,
+                as: "website",
+                attributes: ["website_name", "website_url"],
+            }
+        ];
 
         console.log('Filter options:', filterOptions)
 
