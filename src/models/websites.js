@@ -22,12 +22,22 @@ module.exports = function (sequelize, DataTypes) {
     website_url: {
       type: DataTypes.STRING(255),
       allowNull: true
-    }
+    },
     // created_at missing
+    created_at: {
+      type: DataTypes.DATE,
+      allowNull: true,
+      defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    },
+    // updatedAt: {
+    //   type: DataTypes.DATE,
+    //   allowNull: true,
+    //   defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
+    // },
   }, {
     sequelize,
     tableName: 'websites',
-    timestamps: true,
+    timestamps: false,
     indexes: [
       {
         name: "PRIMARY",

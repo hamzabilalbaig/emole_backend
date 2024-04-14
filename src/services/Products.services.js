@@ -144,7 +144,7 @@ async function getProductsByPage(page, pageSize, filters) {
         }
 
         // Add website ID filter if provided
-        if (filters?.websites) {
+        if (filters?.websites?.length > 0) {
             filterOptions.where.websiteId = {
                 [Op.in]: filters.websites,
             };
