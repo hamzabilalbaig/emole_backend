@@ -26,8 +26,12 @@ module.exports = function(sequelize, DataTypes) {
       defaultValue: Sequelize.Sequelize.literal('CURRENT_TIMESTAMP')
     },
     userplan: {
-      type: DataTypes.STRING(255),
-      allowNull: true
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Plans',
+        key: 'idPlans'
+      }
     },
     productlimit: {
       type: DataTypes.INTEGER,
@@ -52,6 +56,13 @@ module.exports = function(sequelize, DataTypes) {
         using: "BTREE",
         fields: [
           { name: "Email" },
+        ]
+      },
+      {
+        name: "planId_idx",
+        using: "BTREE",
+        fields: [
+          { name: "userplan" },
         ]
       },
     ]

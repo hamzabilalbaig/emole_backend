@@ -33,10 +33,12 @@ app.use(function (req, res, next) {
 var userRoutes = require("./src/routes/User.routes");
 var productRoutes = require("./src/routes/Products.routes");
 var websiteRoutes = require("./src/routes/Websites.routes");
+var planRoutes = require("./src/routes/Plans.routes");
 
 app.use("/api", userRoutes);
 app.use("/api", productRoutes);
 app.use("/api", websiteRoutes);
+app.use("/api", planRoutes);
 
 app.get("/", (req, res) => {
   res.send("hello from simple server :)");

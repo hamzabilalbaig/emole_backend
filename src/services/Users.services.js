@@ -53,7 +53,7 @@ async function Login(email, password) {
       },
     });
     if (user && password === decryptPass(user.Password)) {
-      const token = jsonwebtoken.sign(user, jwtConfig.secret);
+      const token = jsonwebtoken.sign(user?.dataValues, jwtConfig.secret);
 
       return {
         status: true,
@@ -156,9 +156,12 @@ async function ResetPassword(email, password) {
       let encryptedPass = encryptPass(password);
       const d = Object.assign(user, { Password: encryptedPass });
 
-      var result = await sequelizeServer.models.Users.update(d, {
-        where: { id: user.id },
-      });
+      var result = await sequelizeServer.models.Users.update(
+        { Password: encryptedPass },
+        {
+          where: { UserID: user.UserID },
+        }
+      );
 
       return result;
     } else {
@@ -173,8 +176,47 @@ async function GetUserById(id) {
   try {
     const user = await sequelizeServer.models.Users.findOne({
       where: { UserID: id },
+      include: [
+        {
+          model: sequelizeServer.models.Plans,
+          as: "userplan_Plan",
+        },
+      ],
     });
     return user;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function forgetPassword(email) {
+  try {
+    const user = await sequelizeServer.models.Users.findOne({
+      where: {
+        Email: {
+          [Op.like]: `${email}`,
+        },
+      },
+    });
+    if (user) {
+      return "Email has been sent to this User on the provided email";
+    } else {
+      return "No User found with the provided email";
+    }
+  } catch (error) {
+    return error;
+  }
+}
+
+async function SubscribeToPlan(userId, planId) {
+  try {
+    var result = await sequelizeServer.models.Users.update(
+      { userplan: planId },
+      {
+        where: { UserID: userId },
+      }
+    );
+    return result;
   } catch (error) {
     return error;
   }
@@ -187,4 +229,6 @@ module.exports = {
   DeleteUser,
   ResetPassword,
   GetUserById,
+  forgetPassword,
+  SubscribeToPlan,
 };

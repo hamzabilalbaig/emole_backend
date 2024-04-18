@@ -5,6 +5,8 @@ const {
   UpdateUser,
   ResetPassword,
   GetUserById,
+  forgetPassword,
+  SubscribeToPlan,
 } = require("../services/Users.services");
 
 const responseFormat = (status, data, message, code) => {
@@ -114,7 +116,8 @@ async function deleteUser(req, res, next) {
 }
 
 async function resetPassword(req, res, next) {
-  const { Email, Password } = req.body;
+  const { Email } = req.user;
+  const { Password } = req.body;
   try {
     const result = await ResetPassword(Email, Password);
     res.status(200).json({
@@ -163,6 +166,57 @@ async function getUserById(req, res, next) {
   }
 }
 
+async function ForgetPassword(req, res, next) {
+  const { Email } = req.body;
+  try {
+    const result = await forgetPassword(Email);
+    res.status(200).json({
+      success: true,
+      Email: Email,
+      result: result,
+      message: result,
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json(
+        responseFormat(
+          false,
+          error,
+          "Unexpected error while sending the email" + error
+        )
+      );
+    next(error);
+  }
+}
+
+async function subscreibeToPlan(req, res, next) {
+  const { UserID } = req.user;
+  const { Plan } = req.body;
+  try {
+    const result = await SubscribeToPlan(UserID, Plan);
+    res.status(200).json({
+      success: true,
+
+      result: result,
+      message: "Plan subscribed successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json(
+        responseFormat(
+          false,
+          error,
+          "Unexpected error while sending the email" + error
+        )
+      );
+    next(error);
+  }
+}
+
 module.exports = {
   loginUser,
   addUser,
@@ -170,4 +224,6 @@ module.exports = {
   deleteUser,
   resetPassword,
   getUserById,
+  ForgetPassword,
+  subscreibeToPlan,
 };

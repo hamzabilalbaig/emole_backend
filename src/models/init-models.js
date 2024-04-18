@@ -1,5 +1,6 @@
 var DataTypes = require("sequelize").DataTypes;
 var _Pages = require("./Pages");
+var _Plans = require("./Plans");
 var _Products = require("./Products");
 var _Segment_Products = require("./Segment_Products");
 var _Segments = require("./Segments");
@@ -9,6 +10,7 @@ var _Websites = require("./Websites");
 
 function initModels(sequelize) {
   var Pages = _Pages(sequelize, DataTypes);
+  var Plans = _Plans(sequelize, DataTypes);
   var Products = _Products(sequelize, DataTypes);
   var Segment_Products = _Segment_Products(sequelize, DataTypes);
   var Segments = _Segments(sequelize, DataTypes);
@@ -18,6 +20,8 @@ function initModels(sequelize) {
 
   Products.belongsTo(Pages, { as: "Page", foreignKey: "PageID"});
   Pages.hasMany(Products, { as: "Products", foreignKey: "PageID"});
+  Users.belongsTo(Plans, { as: "userplan_Plan", foreignKey: "userplan"});
+  Plans.hasMany(Users, { as: "Users", foreignKey: "userplan"});
   Segment_Products.belongsTo(Products, { as: "Product", foreignKey: "ProductID"});
   Products.hasMany(Segment_Products, { as: "Segment_Products", foreignKey: "ProductID"});
   User_Products.belongsTo(Products, { as: "Product", foreignKey: "ProductID"});
@@ -33,6 +37,7 @@ function initModels(sequelize) {
 
   return {
     Pages,
+    Plans,
     Products,
     Segment_Products,
     Segments,
