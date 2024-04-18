@@ -1,4 +1,11 @@
-const { Login, AddUser, DeleteUser, UpdateUser } = require("../services/Users.services");
+const {
+  Login,
+  AddUser,
+  DeleteUser,
+  UpdateUser,
+  ResetPassword,
+  GetUserById,
+} = require("../services/Users.services");
 
 const responseFormat = (status, data, message, code) => {
   return {
@@ -10,14 +17,21 @@ const responseFormat = (status, data, message, code) => {
 };
 
 async function loginUser(req, res, next) {
-  const { email, password } = req.body;
+  const { Email, Password } = req.body;
   try {
-    const result = await Login(email, password);
-    res.status(200).json({
-      status: result?.status,
-      token: result?.token,
-      message: result?.message,
-    });
+    const result = await Login(Email, Password);
+    const options = {
+      expires: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+    };
+    res
+      .status(result?.status ? 200 : 400)
+      .cookie("token", result?.token, options)
+      .json({
+        status: result?.status,
+        token: result?.token,
+        message: result?.message,
+      });
   } catch (err) {
     console.error(false, null, "Error while logging in");
     next(err);
@@ -99,9 +113,61 @@ async function deleteUser(req, res, next) {
   }
 }
 
+async function resetPassword(req, res, next) {
+  const { Email, Password } = req.body;
+  try {
+    const result = await ResetPassword(Email, Password);
+    res.status(200).json({
+      success: true,
+      Email: Email,
+      result: result,
+      message: "Password reset successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json(
+        responseFormat(
+          false,
+          error,
+          "Unexpected error while resetting the password" + error
+        )
+      );
+    next(error);
+  }
+}
+
+async function getUserById(req, res, next) {
+  const { UserID } = req.user;
+  try {
+    const result = await GetUserById(UserID);
+    res.status(200).json({
+      success: true,
+      id: UserID,
+      result: result,
+      message: "User fetched successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res
+      .status(500)
+      .json(
+        responseFormat(
+          false,
+          error,
+          "Unexpected error while fetching the user" + error
+        )
+      );
+    next(error);
+  }
+}
+
 module.exports = {
   loginUser,
   addUser,
   updateUser,
   deleteUser,
+  resetPassword,
+  getUserById,
 };

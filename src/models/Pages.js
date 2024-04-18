@@ -1,28 +1,27 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('Websites', {
-    WebsiteID: {
+  return sequelize.define('Pages', {
+    PageID: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    Name: {
+    URL: {
       type: DataTypes.STRING(255),
       allowNull: false
     },
-    URL: {
-      type: DataTypes.STRING(255),
-      allowNull: false,
-      unique: "URL"
-    },
-    Description: {
-      type: DataTypes.TEXT,
-      allowNull: true
+    WebsiteID: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'Websites',
+        key: 'WebsiteID'
+      }
     }
   }, {
     sequelize,
-    tableName: 'Websites',
+    tableName: 'Pages',
     timestamps: false,
     indexes: [
       {
@@ -30,15 +29,14 @@ module.exports = function(sequelize, DataTypes) {
         unique: true,
         using: "BTREE",
         fields: [
-          { name: "WebsiteID" },
+          { name: "PageID" },
         ]
       },
       {
-        name: "URL",
-        unique: true,
+        name: "WebsiteID",
         using: "BTREE",
         fields: [
-          { name: "URL" },
+          { name: "WebsiteID" },
         ]
       },
     ]
