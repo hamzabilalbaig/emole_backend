@@ -43,7 +43,7 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
     // Add price range filter
     if (filters?.productPrice) {
       const { minPrice, maxPrice } = filters.productPrice;
-      if (typeof minPrice === "number" && typeof maxPrice === "number") {
+      if (minPrice !== null && maxPrice !== null) {
         filterOptions.where.Price = {
           [Op.between]: [minPrice, maxPrice],
         };
