@@ -65,7 +65,8 @@ async function GetProductsByUserId(req, res, next) {
     const products = await getProductsByUserID(
       req.user.UserID,
       req.body.page,
-      req.body.pageSize
+      req.body.pageSize,
+      req.body.filters
     );
     res.status(200).json({
       success: true,

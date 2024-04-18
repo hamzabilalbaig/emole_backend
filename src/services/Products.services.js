@@ -21,7 +21,7 @@ async function getProductById(id) {
   }
 }
 
-async function getProductsByUserID(userId, page, pageSize) {
+async function getProductsByUserID(userId, page, pageSize, filters) {
   try {
     // Validate page and pageSize inputs
     if (typeof page !== "number" || page <= 0) {
@@ -35,12 +35,77 @@ async function getProductsByUserID(userId, page, pageSize) {
     const offset = (page - 1) * pageSize;
 
     // Fetch total count of products for the user
-    const totalProducts = await sequelizeServer.models.User_Products.count({
-      where: { UserID: userId },
-    });
 
-    // Calculate the total number of pages
-    const totalPages = Math.ceil(totalProducts / pageSize);
+    const filterOptions = {
+      where: {},
+    };
+
+    // Add price range filter
+    if (filters?.productPrice) {
+      const { minPrice, maxPrice } = filters.productPrice;
+      if (typeof minPrice === "number" && typeof maxPrice === "number") {
+        filterOptions.where.Price = {
+          [Op.between]: [minPrice, maxPrice],
+        };
+      }
+    }
+
+    // Add created date range filter
+    if (filters?.createdDate) {
+      const { startDate, endDate } = filters.createdDate;
+      if (startDate && endDate) {
+        filterOptions.where.CreatedAt = {
+          [Op.between]: [startDate, endDate],
+        };
+      }
+    }
+
+    // // Add website ID filter if provided
+    // if (filters?.websites?.length > 0) {
+    //   filterOptions.where.websiteId = {
+    //     [Op.in]: filters.websites,
+    //   };
+
+    //   // Include related website data
+    // }
+
+    if (filters?.category.length > 0) {
+      filterOptions.where.Category = {
+        [Op.in]: filters.category,
+      };
+    }
+
+    if (filters?.StockStatus !== null) {
+      filterOptions.where.StockStatus = filters.StockStatus;
+    }
+
+    // Calculate total product count after filters are applied
+    const totalFilteredProducts =
+      await sequelizeServer.models.User_Products.count({
+        where: { UserID: userId },
+        include: [
+          {
+            model: sequelizeServer.models.Products,
+            as: "Product",
+            where: { ...filterOptions?.where },
+            include: [
+              {
+                model: sequelizeServer.models.Pages,
+                as: "Page",
+                include: [
+                  {
+                    model: sequelizeServer.models.Websites,
+                    as: "Website",
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      });
+
+    // Calculate the total number of pages based on the filtered data
+    const totalFilteredPages = Math.ceil(totalFilteredProducts / pageSize);
 
     // Fetch user products with pagination
     const userProducts = await sequelizeServer.models.User_Products.findAll({
@@ -49,14 +114,17 @@ async function getProductsByUserID(userId, page, pageSize) {
         {
           model: sequelizeServer.models.Products,
           as: "Product",
+          where: { ...filterOptions?.where },
           include: [
             {
-              model: sequelizeServer.models.Websites,
-              as: "Websites",
-              attributes: ["WebsiteID", "Name", "URL", "Description"],
-              through: {
-                attributes: [], // Exclude the through table (Products_Websites)
-              },
+              model: sequelizeServer.models.Pages,
+              as: "Page",
+              include: [
+                {
+                  model: sequelizeServer.models.Websites,
+                  as: "Website",
+                },
+              ],
             },
           ],
         },
@@ -68,8 +136,8 @@ async function getProductsByUserID(userId, page, pageSize) {
     // Return user products, total count, and total pages
     return {
       products: userProducts,
-      totalCount: totalProducts,
-      totalPages: totalPages,
+      totalCount: totalFilteredProducts,
+      totalPages: totalFilteredPages,
     };
   } catch (error) {
     throw error;
@@ -181,7 +249,7 @@ async function getProductsByPage(page, pageSize, filters) {
     if (filters?.productPrice) {
       const { minPrice, maxPrice } = filters.productPrice;
       if (typeof minPrice === "number" && typeof maxPrice === "number") {
-        filterOptions.where.productPrice = {
+        filterOptions.where.Price = {
           [Op.between]: [minPrice, maxPrice],
         };
       }
@@ -191,28 +259,40 @@ async function getProductsByPage(page, pageSize, filters) {
     if (filters?.createdDate) {
       const { startDate, endDate } = filters.createdDate;
       if (startDate && endDate) {
-        filterOptions.where.createdDate = {
+        filterOptions.where.CreatedAt = {
           [Op.between]: [startDate, endDate],
         };
       }
     }
 
-    // Add website ID filter if provided
-    if (filters?.websites?.length > 0) {
-      filterOptions.where.websiteId = {
-        [Op.in]: filters.websites,
-      };
+    // // Add website ID filter if provided
+    // if (filters?.websites?.length > 0) {
+    //   filterOptions.where.websiteId = {
+    //     [Op.in]: filters.websites,
+    //   };
 
-      // Include related website data
+    //   // Include related website data
+    // }
+
+    if (filters?.category) {
+      filterOptions.where.Category = {
+        [Op.in]: filters.category,
+      };
     }
 
-    filterOptions.include = [
-      {
-        model: sequelizeServer.models.websites,
-        as: "website",
-        attributes: ["website_name", "website_url"],
-      },
-    ];
+    if (filters?.StockStatus) {
+      filterOptions.where.StockStatus = {
+        [Op.in]: filters.StockStatus,
+      };
+    }
+
+    // filterOptions.include = [
+    //   {
+    //     model: sequelizeServer.models.websites,
+    //     as: "website",
+    //     attributes: ["website_name", "website_url"],
+    //   },
+    // ];
 
     console.log("Filter options:", filterOptions);
 
