@@ -5,7 +5,23 @@ const jwt = require("jsonwebtoken");
 
 exports.isAuthenticated = async (req, res, next) => {
   try {
-    const { token } = req?.cookies;
+    let token = "";
+    // const { token } = req?.header.authorization;
+
+    const authorizationHeader = req.header("Authorization");
+
+    // Check if the Authorization header exists and starts with 'Bearer '
+    if (authorizationHeader && authorizationHeader.startsWith("Bearer ")) {
+      // Remove 'Bearer ' prefix and get the token
+      token = authorizationHeader.slice(7);
+      // Now you have the token value
+      console.log(token);
+    } else {
+      // Handle the case where the Authorization header is missing or does not start with 'Bearer '
+      console.error(
+        "Authorization header is missing or does not contain a Bearer token"
+      );
+    }
 
     if (!token) {
       return res.status(401).json({
