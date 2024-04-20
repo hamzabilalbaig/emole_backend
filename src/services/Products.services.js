@@ -318,6 +318,82 @@ async function getProductsByPage(page, pageSize, filters) {
   }
 }
 
+async function getCounts(id) {
+  try {
+    const products = await sequelizeServer.models.User_Products.count({
+      where: {
+        UserID: id,
+      },
+    });
+
+    const stock = await sequelizeServer.models.User_Products.count({
+      where: {
+        UserID: id,
+      },
+      include: [
+        {
+          model: sequelizeServer?.models?.Products,
+          as: "Product",
+          where: {
+            StockStatus: 1,
+          },
+        },
+      ],
+    });
+
+    const groups = await sequelizeServer?.models?.Segments?.count({
+      where: {
+        UserID: id,
+      },
+    });
+
+    const websites = await sequelizeServer.models.Websites.count({
+      include: [
+        {
+          model: sequelizeServer?.models?.Pages,
+          as: "Pages",
+          include: [
+            {
+              model: sequelizeServer?.models?.Products,
+              as: "Products",
+              include: [
+                {
+                  model: sequelizeServer?.models?.User_Products,
+                  as: "User_Products",
+                  where: {
+                    UserID: id,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    // const stock = await sequelizeServer?.models?.User_products?.count({
+    //   include: [
+    //     {
+    //       model: sequelizeServer?.models?.Products,
+    //       as: "User_Products",
+    //       where: {
+    //         StockStatus: 1,
+    //       },
+    //     },
+    //   ],
+    // });
+
+    return {
+      products: products,
+      stock: stock,
+      group: groups,
+      websites: websites,
+    };
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getProducts,
   getProductById,
@@ -328,4 +404,5 @@ module.exports = {
   getProductsByWebsite,
   getProductsByPage,
   getProductsByUserID,
+  getCounts,
 };

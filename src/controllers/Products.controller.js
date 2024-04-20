@@ -3,6 +3,7 @@ const {
   getProductById,
   getProductsByPage,
   getProductsByUserID,
+  getCounts,
 } = require("../services/Products.services");
 
 async function GetProducts(req, res, next) {
@@ -82,9 +83,26 @@ async function GetProductsByUserId(req, res, next) {
   }
 }
 
+async function GetCounts(req, res) {
+  try {
+    const counts = await getCounts(req?.user?.UserID);
+    res.status(200).json({
+      success: true,
+      counts: counts,
+      message: "Products fetched successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Unexpected error while fetching products" + error,
+    });
+  }
+}
+
 module.exports = {
   GetProducts,
   GetProductById,
   GetProductsByPage,
   GetProductsByUserId,
+  GetCounts,
 };

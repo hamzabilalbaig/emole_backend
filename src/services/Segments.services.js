@@ -3,18 +3,39 @@ const { Op } = require("sequelize");
 
 async function createSegment(UserID, segment) {
   try {
-    const result = await sequelizeServer.models.Segments.create({
-      UserID: UserID,
-      GroupName: segment?.GroupName,
-      Description: segment?.Description,
-    });
-
-    segment?.products?.map(async (data) => {
-      await sequelizeServer?.models?.Segment_Products?.create({
-        GroupID: result?.GroupID,
-        ProductID: data?.productID,
+    let result = segment;
+    if (result?.GroupID) {
+      result = await sequelizeServer?.models?.Segments.findOne({
+        where: {
+          GroupID: result?.GroupID,
+        },
       });
-    });
+    } else {
+      result = await sequelizeServer.models.Segments.create({
+        UserID: UserID,
+        GroupName: segment?.GroupName,
+        Description: segment?.Description,
+      });
+    }
+
+    if (segment?.products && segment.products.length > 0) {
+      const productIds = segment.products.map((data) => data.productID);
+      for (const productId of productIds) {
+        const existingEntry =
+          await sequelizeServer.models.Segment_Products.findOne({
+            where: {
+              GroupID: result?.GroupID,
+              ProductID: productId,
+            },
+          });
+        if (!existingEntry) {
+          await sequelizeServer?.models?.Segment_Products?.create({
+            GroupID: result?.GroupID,
+            ProductID: productId,
+          });
+        }
+      }
+    }
 
     return {
       message: "segment created",
@@ -84,7 +105,7 @@ async function deleteSegment(segID) {
       },
     });
 
-    return "Segment Deleted";
+    return segment;
   } catch (error) {
     throw error;
   }

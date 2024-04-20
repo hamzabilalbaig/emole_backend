@@ -53,9 +53,9 @@ async function GetProductsBySegmentId(req, res) {
 async function DeleteSegment(req, res) {
   try {
     const del = await deleteSegment(req?.body?.GroupID);
-    res.status(200).json({
+    res.status(del ? 200 : 500).json({
       success: true,
-      del,
+      message: del ? "deleted" : "Failed",
     });
   } catch (error) {
     res.status(500).json({
@@ -64,6 +64,7 @@ async function DeleteSegment(req, res) {
     });
   }
 }
+
 module.exports = {
   addSegment,
   GetSegmentsByUserId,
