@@ -23,11 +23,12 @@ async function getWebsiteById(id) {
 
 async function getWebsiteByUserId(id) {
   try {
-    const website = await sequelizeServer.models.Websites.findAll({
+    const websites = await sequelizeServer.models.Websites.findAll({
       include: [
         {
           model: sequelizeServer?.models?.Pages,
           as: "Pages",
+
           include: [
             {
               model: sequelizeServer?.models?.Products,
@@ -46,7 +47,15 @@ async function getWebsiteByUserId(id) {
         },
       ],
     });
-    return website;
+
+    const transformedResult = websites.map((website) => ({
+      WebsiteID: website?.WebsiteID,
+      Name: website?.Name,
+      URL: website?.URL,
+      Description: website?.Description,
+      products: website.Pages[0]?.Products || [], // Include associated products or an empty array if no products exist
+    }));
+    return transformedResult;
   } catch (error) {
     throw error;
   }
