@@ -25,7 +25,7 @@ async function createSegment(UserID, segment) {
     if (result?.length > 0) {
       for (const res of result) {
         if (segment?.products && segment.products.length > 0) {
-          const productIds = segment.products.map((data) => data.productID);
+          const productIds = segment.products.map((data) => data.ProductID);
           for (const productId of productIds) {
             const existingEntry =
               await sequelizeServer.models.Segment_Products.findOne({
@@ -45,7 +45,7 @@ async function createSegment(UserID, segment) {
       }
     } else {
       if (segment?.products && segment.products.length > 0) {
-        const productIds = segment.products.map((data) => data.productID);
+        const productIds = segment.products.map((data) => data.ProductID);
         for (const productId of productIds) {
           const existingEntry =
             await sequelizeServer.models.Segment_Products.findOne({
