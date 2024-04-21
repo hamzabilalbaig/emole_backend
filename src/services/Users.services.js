@@ -143,7 +143,7 @@ async function DeleteUser(id) {
   }
 }
 
-async function ResetPassword(email, password) {
+async function ResetPassword(email, password, oldpassword) {
   try {
     const user = await sequelizeServer.models.Users.findOne({
       where: {
@@ -152,6 +152,11 @@ async function ResetPassword(email, password) {
         },
       },
     });
+
+    const oldcheck = decryptPass(user?.Password);
+    if (oldcheck !== oldpassword) {
+      return "Old Password you entered is incorrect";
+    }
     if (user) {
       let encryptedPass = encryptPass(password);
       const d = Object.assign(user, { Password: encryptedPass });
@@ -163,7 +168,7 @@ async function ResetPassword(email, password) {
         }
       );
 
-      return result;
+      return "password changed Successfully";
     } else {
       return "no user found";
     }

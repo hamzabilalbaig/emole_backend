@@ -119,12 +119,9 @@ async function resetPassword(req, res, next) {
   const { Email } = req.user;
   const { Password } = req.body;
   try {
-    const result = await ResetPassword(Email, Password);
-    res.status(200).json({
-      success: true,
-      Email: Email,
+    const result = await ResetPassword(Email, Password, req?.body?.oldpass);
+    res.status(result ? 200 : 500).json({
       result: result,
-      message: "Password reset successfully",
     });
   } catch (error) {
     console.log(error);
