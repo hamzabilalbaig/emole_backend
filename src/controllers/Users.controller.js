@@ -68,7 +68,7 @@ async function addUser(req, res, next) {
 async function updateUser(req, res, next) {
   const { user } = req.body;
   try {
-    const result = await UpdateUser(user);
+    const result = await UpdateUser(user, req?.user?.UserID);
     res.status(200).json({
       success: true,
       user: user,

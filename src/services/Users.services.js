@@ -97,19 +97,19 @@ async function AddUser(user) {
   }
 }
 
-async function UpdateUser(user) {
+async function UpdateUser(user, id) {
   try {
     const userDb = await sequelizeServer.models.Users.findOne({
-      where: { id: user.id },
+      where: { UserID: id },
     });
     if (userDb == null) {
       throw "no user found";
     }
     let encryptedPass = user?.password;
-    const d = Object.assign(user, { password: encryptedPass });
+    const d = Object.assign(user, { Password: encryptedPass });
 
     var result = await sequelizeServer.models.Users.update(d, {
-      where: { id: user.id },
+      where: { UserID: id },
     });
 
     return result;
@@ -117,7 +117,7 @@ async function UpdateUser(user) {
     if (error == "no user found") {
       throw "no user found";
     }
-    return error;
+    throw error;
   }
 }
 

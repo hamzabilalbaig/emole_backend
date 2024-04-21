@@ -394,6 +394,28 @@ async function getCounts(id) {
   }
 }
 
+async function getSegmnetsByProductId(id, UserID) {
+  try {
+    const product = await sequelizeServer?.models?.Segment_Products?.findAll({
+      where: {
+        ProductID: id,
+      },
+      include: [
+        {
+          model: sequelizeServer?.models?.Segments,
+          as: "Group",
+          where: {
+            UserID: UserID,
+          },
+        },
+      ],
+    });
+    return product;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getProducts,
   getProductById,
@@ -405,4 +427,5 @@ module.exports = {
   getProductsByPage,
   getProductsByUserID,
   getCounts,
+  getSegmnetsByProductId,
 };
