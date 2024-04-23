@@ -237,7 +237,15 @@ async function SubscribeToPlan(userId, planId, duration) {
 async function getUserBillingInfo(id) {
   try {
     const bills = await sequelizeServer?.models?.Billing.findAll({
-      UserID: id,
+      where: {
+        UserID: id,
+      },
+      include: [
+        {
+          model: sequelizeServer?.models?.Plans,
+          as: "Plan",
+        },
+      ],
     });
 
     return bills;
