@@ -7,6 +7,8 @@ const {
   GetUserById,
   forgetPassword,
   SubscribeToPlan,
+  getUserBillingInfo,
+  checkUserSub,
 } = require("../services/Users.services");
 
 const responseFormat = (status, data, message, code) => {
@@ -190,9 +192,9 @@ async function ForgetPassword(req, res, next) {
 
 async function subscreibeToPlan(req, res, next) {
   const { UserID } = req.user;
-  const { Plan } = req.body;
+  const { Plan, Duration } = req.body;
   try {
-    const result = await SubscribeToPlan(UserID, Plan);
+    const result = await SubscribeToPlan(UserID, Plan, Duration);
     res.status(200).json({
       success: true,
 
@@ -214,6 +216,38 @@ async function subscreibeToPlan(req, res, next) {
   }
 }
 
+async function GetUserBillingInfo(req, res, next) {
+  try {
+    const result = await getUserBillingInfo(req?.user?.UserID);
+    res.status(200).json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error,
+      message: "Unexpected error " + error,
+    });
+  }
+}
+
+async function CheckUserSubs(req, res, next) {
+  try {
+    const result = await checkUserSub(req?.user?.UserID);
+    res.status(200).json({
+      success: true,
+      result,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error,
+      message: "Unexpected error " + error,
+    });
+  }
+}
+
 module.exports = {
   loginUser,
   addUser,
@@ -223,4 +257,6 @@ module.exports = {
   getUserById,
   ForgetPassword,
   subscreibeToPlan,
+  GetUserBillingInfo,
+  CheckUserSubs,
 };

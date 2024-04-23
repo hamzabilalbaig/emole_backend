@@ -28,7 +28,6 @@ async function getWebsiteByUserId(id) {
         {
           model: sequelizeServer?.models?.Pages,
           as: "Pages",
-
           include: [
             {
               model: sequelizeServer?.models?.Products,
@@ -48,14 +47,29 @@ async function getWebsiteByUserId(id) {
       ],
     });
 
-    const transformedResult = websites.map((website) => ({
-      WebsiteID: website?.WebsiteID,
-      Name: website?.Name,
-      URL: website?.URL,
-      Description: website?.Description,
-      products: website.Pages[0]?.Products || [], // Include associated products or an empty array if no products exist
-    }));
-    return transformedResult;
+    const websiteWithCounts = websites.map((website) => {
+      const products = website.Pages[0]?.Products || [];
+      const totalProducts = products.length;
+      const trueStockProducts = products.filter(
+        (product) => product.StockStatus === true
+      ).length;
+      const falseStockProducts = products.filter(
+        (product) => product.StockStatus === false
+      ).length;
+
+      return {
+        WebsiteID: website?.WebsiteID,
+        Name: website?.Name,
+        URL: website?.URL,
+        Description: website?.Description,
+        totalProducts: totalProducts,
+        inStockProducts: trueStockProducts,
+        outOfStockProducts: falseStockProducts,
+        products: products, // Include associated products
+      };
+    });
+
+    return websiteWithCounts;
   } catch (error) {
     throw error;
   }

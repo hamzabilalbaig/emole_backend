@@ -213,7 +213,7 @@ async function forgetPassword(email) {
   }
 }
 
-async function SubscribeToPlan(userId, planId) {
+async function SubscribeToPlan(userId, planId, duration) {
   try {
     var result = await sequelizeServer.models.Users.update(
       { userplan: planId },
@@ -221,9 +221,76 @@ async function SubscribeToPlan(userId, planId) {
         where: { UserID: userId },
       }
     );
-    return result;
+
+    const bill = await sequelizeServer?.models?.Billing?.create({
+      UserID: userId,
+      PlanID: planId,
+      Duration: duration,
+    });
+
+    return { result, bill };
   } catch (error) {
     return error;
+  }
+}
+
+async function getUserBillingInfo(id) {
+  try {
+    const bills = await sequelizeServer?.models?.Billing.findAll({
+      UserID: id,
+    });
+
+    return bills;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function checkUserSub(UserID) {
+  try {
+    // Find the last billing record for the user
+    const lastRecord = await sequelizeServer?.models?.Billing.findOne({
+      where: {
+        UserID: UserID,
+      },
+      order: [["createdAt", "DESC"]],
+      include: [
+        {
+          model: sequelizeServer?.models?.Plans,
+          as: "Plan",
+        },
+      ], // Order by createdAt in descending order
+    });
+
+    // If no record found, user is not subscribed to anything
+    if (!lastRecord) {
+      return "Not subscribed to anything";
+    }
+
+    // Calculate the subscription duration
+    const subscriptionDuration = parseInt(lastRecord.Duration);
+    const subscriptionEndDate = new Date(lastRecord.createdAt);
+    subscriptionEndDate.setDate(
+      subscriptionEndDate.getDate() + subscriptionDuration
+    );
+
+    // Calculate the remaining days of the subscription
+    const currentDate = new Date();
+    const remainingDays = Math.ceil(
+      (subscriptionEndDate - currentDate) / (1000 * 60 * 60 * 24)
+    );
+
+    if (remainingDays <= 0) {
+      return "Subscription expired";
+    } else {
+      return {
+        subscriptionEndDate: subscriptionEndDate,
+        remainingDays: remainingDays,
+        subscribedPlane: lastRecord?.Plan,
+      };
+    }
+  } catch (error) {
+    throw error;
   }
 }
 
@@ -236,4 +303,6 @@ module.exports = {
   GetUserById,
   forgetPassword,
   SubscribeToPlan,
+  getUserBillingInfo,
+  checkUserSub,
 };

@@ -8,6 +8,8 @@ const {
   getUserById,
   ForgetPassword,
   subscreibeToPlan,
+  GetUserBillingInfo,
+  CheckUserSubs,
 } = require("../controllers/Users.controller");
 const { isAuthenticated } = require("../middlewares/auth");
 const router = express.Router();
@@ -20,5 +22,7 @@ router?.post("/resetPassword", isAuthenticated, resetPassword);
 router?.get("/getUserById", isAuthenticated, getUserById);
 router?.post("/forgetPassword", ForgetPassword);
 router?.post("/subscribeToPlan", isAuthenticated, subscreibeToPlan);
+router?.get("/getUserBillingInfo", isAuthenticated, GetUserBillingInfo);
+router?.get("/checkUserSubs", isAuthenticated, CheckUserSubs);
 
 module.exports = router;

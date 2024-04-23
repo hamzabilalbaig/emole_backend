@@ -1,4 +1,5 @@
 var DataTypes = require("sequelize").DataTypes;
+var _Billing = require("./Billing");
 var _Pages = require("./Pages");
 var _Plans = require("./Plans");
 var _Products = require("./Products");
@@ -7,8 +8,10 @@ var _Segments = require("./Segments");
 var _User_Products = require("./User_Products");
 var _Users = require("./Users");
 var _Websites = require("./Websites");
+var _alerts = require("./alerts");
 
 function initModels(sequelize) {
+  var Billing = _Billing(sequelize, DataTypes);
   var Pages = _Pages(sequelize, DataTypes);
   var Plans = _Plans(sequelize, DataTypes);
   var Products = _Products(sequelize, DataTypes);
@@ -17,17 +20,24 @@ function initModels(sequelize) {
   var User_Products = _User_Products(sequelize, DataTypes);
   var Users = _Users(sequelize, DataTypes);
   var Websites = _Websites(sequelize, DataTypes);
+  var alerts = _alerts(sequelize, DataTypes);
 
   Products.belongsTo(Pages, { as: "Page", foreignKey: "PageID"});
   Pages.hasMany(Products, { as: "Products", foreignKey: "PageID"});
+  Billing.belongsTo(Plans, { as: "Plan", foreignKey: "PlanID"});
+  Plans.hasMany(Billing, { as: "Billings", foreignKey: "PlanID"});
   Users.belongsTo(Plans, { as: "userplan_Plan", foreignKey: "userplan"});
   Plans.hasMany(Users, { as: "Users", foreignKey: "userplan"});
   Segment_Products.belongsTo(Products, { as: "Product", foreignKey: "ProductID"});
   Products.hasMany(Segment_Products, { as: "Segment_Products", foreignKey: "ProductID"});
   User_Products.belongsTo(Products, { as: "Product", foreignKey: "ProductID"});
   Products.hasMany(User_Products, { as: "User_Products", foreignKey: "ProductID"});
+  alerts.belongsTo(Products, { as: "product", foreignKey: "product_id"});
+  Products.hasMany(alerts, { as: "alerts", foreignKey: "product_id"});
   Segment_Products.belongsTo(Segments, { as: "Group", foreignKey: "GroupID"});
   Segments.hasMany(Segment_Products, { as: "Segment_Products", foreignKey: "GroupID"});
+  Billing.belongsTo(Users, { as: "User", foreignKey: "UserID"});
+  Users.hasMany(Billing, { as: "Billings", foreignKey: "UserID"});
   Segments.belongsTo(Users, { as: "User", foreignKey: "UserID"});
   Users.hasMany(Segments, { as: "Segments", foreignKey: "UserID"});
   User_Products.belongsTo(Users, { as: "User", foreignKey: "UserID"});
@@ -36,6 +46,7 @@ function initModels(sequelize) {
   Websites.hasMany(Pages, { as: "Pages", foreignKey: "WebsiteID"});
 
   return {
+    Billing,
     Pages,
     Plans,
     Products,
@@ -44,6 +55,7 @@ function initModels(sequelize) {
     User_Products,
     Users,
     Websites,
+    alerts,
   };
 }
 module.exports = initModels;
