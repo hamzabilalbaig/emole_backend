@@ -262,13 +262,35 @@ async function checkUserSub(UserID) {
       ], // Order by createdAt in descending order
     });
 
+    const totalProducts = await sequelizeServer?.models?.User_Products?.count({
+      where: {
+        UserID: UserID,
+      },
+    });
+
+    const remainingProducts =
+      lastRecord?.Plan?.NumberOfProducts - totalProducts;
+
     // If no record found, user is not subscribed to anything
     if (!lastRecord) {
-      return "Not subscribed to anything";
+      return {
+        subscriptionEndDate: null,
+        remainingDays: null,
+        subscribedPlane: {
+          idPlans: 0,
+          PlanName: "Free Forever",
+          PlanPrice: "0",
+          PlanDuration: "0",
+          NumberOfProducts: "5",
+        },
+        remainingProducts: null,
+      };
     }
 
+    const duration = lastRecord?.Duration === "monthly" ? 30 : 365;
+
     // Calculate the subscription duration
-    const subscriptionDuration = parseInt(lastRecord.Duration);
+    const subscriptionDuration = parseInt(duration);
     const subscriptionEndDate = new Date(lastRecord.createdAt);
     subscriptionEndDate.setDate(
       subscriptionEndDate.getDate() + subscriptionDuration
@@ -287,6 +309,7 @@ async function checkUserSub(UserID) {
         subscriptionEndDate: subscriptionEndDate,
         remainingDays: remainingDays,
         subscribedPlane: lastRecord?.Plan,
+        remainingProducts: remainingProducts,
       };
     }
   } catch (error) {
