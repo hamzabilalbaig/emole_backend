@@ -10,17 +10,6 @@ async function getWebsites() {
   }
 }
 
-async function getWebsiteById(id) {
-  try {
-    const website = await sequelizeServer.models.websites.findOne({
-      where: { websiteId: id },
-    });
-    return website;
-  } catch (error) {
-    throw error;
-  }
-}
-
 async function getWebsiteByUserId(id) {
   try {
     const websites = await sequelizeServer.models.Websites.findAll({
@@ -75,60 +64,80 @@ async function getWebsiteByUserId(id) {
   }
 }
 
-async function createWebsite(website) {
+async function getProductByWebsiteId(id, UserID) {
   try {
-    // const websiteDb = await sequelizeServer.models.websites.findOne({
-    //     where: { website_name: website.website_name },
-    // });
-    // if (websiteDb != null) {
-    //     throw "website";
-    // }
+    const website = await sequelizeServer.models.Websites.findOne({
+      where: { WebsiteID: id },
+      include: [
+        {
+          model: sequelizeServer?.models?.Pages,
+          as: "Pages",
+          include: [
+            {
+              model: sequelizeServer?.models?.Products,
+              as: "Products",
+              include: [
+                {
+                  model: sequelizeServer?.models?.User_Products,
+                  as: "User_Products",
+                  where: {
+                    UserID: UserID,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
 
-    var result = await sequelizeServer.models.websites.create(website);
-
-    return result;
+    return website;
   } catch (error) {
-    console.log(error);
-    return error;
+    throw error;
   }
 }
 
-async function updateWebsite(website) {
+async function getProductsCountByWebsiteId(id, UserID) {
   try {
-    const websiteDb = await sequelizeServer.models.websites.findOne({
-      where: { websiteId: website.websiteId },
-    });
-    if (websiteDb == null) {
-      throw "no website found";
-    }
-
-    var result = await sequelizeServer.models.websites.update(website, {
-      where: { websiteId: website.websiteId },
-    });
-
-    return result;
-  } catch (error) {
-    if (error == "no website found") {
-      throw "no website found";
-    }
-    return error;
-  }
-}
-
-async function deleteWebsite(id) {
-  try {
-    const websiteDb = await sequelizeServer.models.websites.findOne({
-      where: { websiteId: id },
-    });
-    if (websiteDb == null) {
-      throw "no website found";
-    }
-
-    var result = await sequelizeServer.models.websites.destroy({
-      where: { websiteId: id },
+    const website = await sequelizeServer.models.Websites.findOne({
+      where: { WebsiteID: id },
+      include: [
+        {
+          model: sequelizeServer?.models?.Pages,
+          as: "Pages",
+          include: [
+            {
+              model: sequelizeServer?.models?.Products,
+              as: "Products",
+              include: [
+                {
+                  model: sequelizeServer?.models?.User_Products,
+                  as: "User_Products",
+                  where: {
+                    UserID: UserID,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
     });
 
-    return result;
+    const products = website.Pages[0]?.Products || [];
+    const totalProducts = products.length;
+    const trueStockProducts = products.filter(
+      (product) => product.StockStatus === true
+    ).length;
+    const falseStockProducts = products.filter(
+      (product) => product.StockStatus === false
+    ).length;
+
+    return {
+      totalProducts: totalProducts,
+      inStockProducts: trueStockProducts,
+      outOfStockProducts: falseStockProducts,
+    };
   } catch (error) {
     throw error;
   }
@@ -136,9 +145,8 @@ async function deleteWebsite(id) {
 
 module.exports = {
   getWebsites,
-  getWebsiteById,
   getWebsiteByUserId,
-  createWebsite,
-  updateWebsite,
-  deleteWebsite,
+
+  getProductByWebsiteId,
+  getProductsCountByWebsiteId,
 };

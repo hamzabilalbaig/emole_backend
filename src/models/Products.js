@@ -16,8 +16,8 @@ module.exports = function(sequelize, DataTypes) {
       allowNull: true
     },
     Price: {
-      type: DataTypes.DECIMAL(10,2),
-      allowNull: false
+      type: DataTypes.STRING(100),
+      allowNull: true
     },
     LastPrice: {
       type: DataTypes.DECIMAL(10,2),
