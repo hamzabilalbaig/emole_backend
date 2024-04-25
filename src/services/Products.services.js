@@ -60,15 +60,6 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
       }
     }
 
-    // // Add website ID filter if provided
-    // if (filters?.websites?.length > 0) {
-    //   filterOptions.where.websiteId = {
-    //     [Op.in]: filters.websites,
-    //   };
-
-    //   // Include related website data
-    // }
-
     if (filters?.category.length > 0) {
       filterOptions.where.Category = {
         [Op.in]: filters.category,
@@ -79,6 +70,19 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
       filterOptions.where.StockStatus = filters.StockStatus;
     }
 
+    // Add SegmentID filter if provided
+    if (filters?.SegmentID !== null) {
+      filterOptions.include = [
+        {
+          model: sequelizeServer.models.Segment_Products,
+          as: "Segment_Products",
+          where: {
+            GroupID: filters?.SegmentID,
+          },
+        },
+      ];
+    }
+
     // Calculate total product count after filters are applied
     const totalFilteredProducts =
       await sequelizeServer.models.User_Products.count({
@@ -87,7 +91,7 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
           {
             model: sequelizeServer.models.Products,
             as: "Product",
-            where: { ...filterOptions?.where },
+            where: { ...filterOptions.where },
             include: [
               {
                 model: sequelizeServer.models.Pages,
@@ -99,6 +103,7 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
                   },
                 ],
               },
+              ...(filterOptions.include || []), // Spread the include options
             ],
           },
         ],
@@ -114,7 +119,7 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
         {
           model: sequelizeServer.models.Products,
           as: "Product",
-          where: { ...filterOptions?.where },
+          where: { ...filterOptions.where },
           include: [
             {
               model: sequelizeServer.models.Pages,
@@ -126,6 +131,7 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
                 },
               ],
             },
+            ...(filterOptions.include || []), // Spread the include options
           ],
         },
       ],
