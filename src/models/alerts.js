@@ -30,6 +30,11 @@ module.exports = function(sequelize, DataTypes) {
     priority: {
       type: DataTypes.STRING(20),
       allowNull: false
+    },
+    read: {
+      type: DataTypes.TINYINT,
+      allowNull: true,
+      defaultValue: 0
     }
   }, {
     sequelize,
