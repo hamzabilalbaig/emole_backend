@@ -19,6 +19,13 @@ async function getAlertByUserID(UserID, page, pageSize, filters) {
         filterOptions.where.createdAt = {
           [Op.between]: [startDate, endDate],
         };
+      } else {
+        filterOptions.where.createdAt = {
+          [Op.between]: [
+            "1900-04-17T23:51:45.000Z",
+            "2100-04-17T23:51:45.000Z",
+          ],
+        };
       }
     }
 
@@ -35,27 +42,30 @@ async function getAlertByUserID(UserID, page, pageSize, filters) {
       filterOptionsWebsite.where.URL = URL;
     }
 
-    const alertsCount = await sequelizeServer?.models?.alerts?.count({
+    const alertsCount = await sequelizeServer.models.alerts.count({
       where: { ...filterOptions.where },
+
       include: [
         {
-          model: sequelizeServer?.models?.Products,
+          model: sequelizeServer.models.Products,
           as: "product",
-
+          required: true,
           include: [
             {
               model: sequelizeServer.models.Pages,
               as: "Page",
+              required: true,
               include: [
                 {
                   model: sequelizeServer.models.Websites,
                   as: "Website",
+                  required: true,
                   where: { ...filterOptionsWebsite.where },
                 },
               ],
             },
             {
-              model: sequelizeServer?.models?.User_Products,
+              model: sequelizeServer.models.User_Products,
               as: "User_Products",
               where: {
                 UserID: UserID,
@@ -67,13 +77,14 @@ async function getAlertByUserID(UserID, page, pageSize, filters) {
       ],
     });
 
-    const alerts = await sequelizeServer?.models?.alerts?.findAll({
+    const totalFilteredPages = Math.ceil(alertsCount / pageSize);
+
+    const alerts = await sequelizeServer.models.alerts.findAll({
       where: { ...filterOptions.where },
       include: [
         {
-          model: sequelizeServer?.models?.Products,
+          model: sequelizeServer.models.Products,
           as: "product",
-
           include: [
             {
               model: sequelizeServer.models.Pages,
@@ -87,7 +98,7 @@ async function getAlertByUserID(UserID, page, pageSize, filters) {
               ],
             },
             {
-              model: sequelizeServer?.models?.User_Products,
+              model: sequelizeServer.models.User_Products,
               as: "User_Products",
               where: {
                 UserID: UserID,
@@ -100,8 +111,6 @@ async function getAlertByUserID(UserID, page, pageSize, filters) {
       limit: pageSize,
       offset: offset,
     });
-
-    const totalFilteredPages = Math.ceil(alertsCount / pageSize);
 
     return {
       alerts: alerts,
