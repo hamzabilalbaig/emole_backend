@@ -30,7 +30,7 @@ async function DeleteAlert(req, res) {
 
 async function ReadAlert(req, res) {
   try {
-    const alert = await readAlert(req.body.id);
+    const alert = await readAlert(req.body.ids, req.body.read);
     res.status(200).json(alert);
   } catch (error) {
     res.status(500).json({ message: error.message });

@@ -141,20 +141,25 @@ async function deleteAlert(ids) {
   }
 }
 
-async function readAlert(id) {
+async function readAlert(ids, read) {
   try {
-    const alert = await sequelizeServer?.models?.alerts?.update(
-      {
-        read: true,
-      },
-      {
-        where: {
-          id: id,
-        },
-      }
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        const alert = await sequelizeServer?.models?.alerts?.update(
+          {
+            read: read,
+          },
+          {
+            where: {
+              id: id,
+            },
+          }
+        );
+        return alert;
+      })
     );
 
-    return alert;
+    return results;
   } catch (error) {
     return error;
   }
