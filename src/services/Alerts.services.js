@@ -122,15 +122,20 @@ async function getAlertByUserID(UserID, page, pageSize, filters) {
   }
 }
 
-async function deleteAlert(id) {
+async function deleteAlert(ids) {
   try {
-    const alert = await sequelizeServer?.models?.alerts?.destroy({
-      where: {
-        id: id,
-      },
-    });
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        const alert = await sequelizeServer?.models?.alerts?.destroy({
+          where: {
+            id: id,
+          },
+        });
+        return alert;
+      })
+    );
 
-    return alert;
+    return results;
   } catch (error) {
     return error;
   }

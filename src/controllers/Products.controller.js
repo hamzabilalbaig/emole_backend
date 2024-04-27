@@ -5,6 +5,7 @@ const {
   getProductsByUserID,
   getCounts,
   getSegmnetsByProductId,
+  deleteProduct,
 } = require("../services/Products.services");
 
 async function GetProducts(req, res, next) {
@@ -119,6 +120,22 @@ async function GetSegmnetsByProductId(req, res) {
   }
 }
 
+async function DeleteProducts(req, res) {
+  try {
+    const product = await deleteProduct(req?.body?.ids, req?.user?.UserID);
+    res.status(200).json({
+      success: true,
+      product: product,
+      message: "Product deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Unexpected error while deleting product" + error,
+    });
+  }
+}
+
 module.exports = {
   GetProducts,
   GetProductById,
@@ -126,4 +143,5 @@ module.exports = {
   GetProductsByUserId,
   GetCounts,
   GetSegmnetsByProductId,
+  DeleteProducts,
 };

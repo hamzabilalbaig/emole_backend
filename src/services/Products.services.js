@@ -192,20 +192,20 @@ async function updateProduct(product) {
   }
 }
 
-async function deleteProduct(id) {
+async function deleteProduct(ids, userID) {
   try {
-    const productDb = await sequelizeServer.models.products.findOne({
-      where: { id: id },
-    });
-    if (productDb == null) {
-      throw "no product found";
-    }
-
-    var result = await sequelizeServer.models.products.destroy({
-      where: { id: id },
-    });
-
-    return result;
+    const results = await Promise.all(
+      ids.map(async (id) => {
+        const alert = await sequelizeServer?.models?.User_Products?.destroy({
+          where: {
+            ProductID: id,
+            UserID: userID,
+          },
+        });
+        return alert;
+      })
+    );
+    return results;
   } catch (error) {
     throw error;
   }
