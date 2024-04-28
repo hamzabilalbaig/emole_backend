@@ -218,7 +218,7 @@ async function deleteProduct(ids, userID) {
 
     const results2 = await Promise.all(
       ids.map(async (id) => {
-        const alert = await sequelizeServer?.models?.Segment_products?.destroy({
+        const alert = await sequelizeServer?.models?.Segment_Products?.destroy({
           where: {
             ProductID: id,
           },
@@ -227,7 +227,7 @@ async function deleteProduct(ids, userID) {
       })
     );
 
-    return results;
+    return results2;
   } catch (error) {
     throw error;
   }
