@@ -79,6 +79,25 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
           where: {
             GroupID: filters?.SegmentID,
           },
+          include: [
+            {
+              model: sequelizeServer.models.Segments,
+              as: "Group",
+            },
+          ],
+        },
+      ];
+    } else {
+      filterOptions.include = [
+        {
+          model: sequelizeServer.models.Segment_Products,
+          as: "Segment_Products",
+          include: [
+            {
+              model: sequelizeServer.models.Segments,
+              as: "Group",
+            },
+          ],
         },
       ];
     }
@@ -341,7 +360,7 @@ async function getCounts(id) {
           model: sequelizeServer?.models?.Products,
           as: "Product",
           where: {
-            StockStatus: 1,
+            StockStatus: 0,
           },
         },
       ],
@@ -354,18 +373,22 @@ async function getCounts(id) {
     });
 
     const websites = await sequelizeServer.models.Websites.count({
+      distinct: true, // Count distinct websites
       include: [
         {
-          model: sequelizeServer?.models?.Pages,
+          model: sequelizeServer.models.Pages,
           as: "Pages",
+          required: true,
           include: [
             {
-              model: sequelizeServer?.models?.Products,
+              model: sequelizeServer.models.Products,
               as: "Products",
+              required: true,
               include: [
                 {
-                  model: sequelizeServer?.models?.User_Products,
+                  model: sequelizeServer.models.User_Products,
                   as: "User_Products",
+                  required: true,
                   where: {
                     UserID: id,
                   },
@@ -376,18 +399,6 @@ async function getCounts(id) {
         },
       ],
     });
-
-    // const stock = await sequelizeServer?.models?.User_products?.count({
-    //   include: [
-    //     {
-    //       model: sequelizeServer?.models?.Products,
-    //       as: "User_Products",
-    //       where: {
-    //         StockStatus: 1,
-    //       },
-    //     },
-    //   ],
-    // });
 
     return {
       products: products,

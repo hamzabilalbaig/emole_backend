@@ -29,6 +29,21 @@ async function getWebsiteByUserId(id) {
                     UserID: id,
                   },
                 },
+                {
+                  model: sequelizeServer?.models?.Segment_Products,
+                  as: "Segment_Products",
+
+                  include: [
+                    {
+                      model: sequelizeServer?.models?.Segments,
+                      as: "Group",
+                    },
+                  ],
+                },
+                {
+                  model: sequelizeServer?.models?.alerts,
+                  as: "alerts",
+                },
               ],
             },
           ],
@@ -37,6 +52,8 @@ async function getWebsiteByUserId(id) {
     });
 
     const websiteWithCounts = websites.map((website) => {
+      const alerts = website.Pages[0]?.Products[0]?.alerts || [];
+      const segments = website.Pages[0]?.Products[0]?.User_Segments || [];
       const products = website.Pages[0]?.Products || [];
       const totalProducts = products.length;
       const trueStockProducts = products.filter(
@@ -55,6 +72,8 @@ async function getWebsiteByUserId(id) {
         inStockProducts: trueStockProducts,
         outOfStockProducts: falseStockProducts,
         products: products, // Include associated products
+        alerts: alerts, // Include associated alerts
+        segments: segments, // Include associated segments
       };
     });
 
@@ -91,7 +110,14 @@ async function getProductByWebsiteId(id, UserID) {
       ],
     });
 
-    return website;
+    const inStockProducts = website.Pages[0]?.Products || [];
+
+    const result = website.map((websitee) => ({
+      website: websitee,
+      inStockProducts: websitee.products,
+    }));
+
+    return result;
   } catch (error) {
     throw error;
   }

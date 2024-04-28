@@ -90,10 +90,69 @@ async function getSegmentsByUserId(UserID) {
       ],
     });
 
-    return segments.map((segment) => ({
+    const segments2 = await sequelizeServer.models.Segments.findAll({
+      where: {
+        UserID: UserID,
+      },
+      include: [
+        {
+          model: sequelizeServer.models.Segment_Products,
+          as: "Segment_Products",
+          include: [
+            {
+              model: sequelizeServer?.models?.Products,
+              as: "Product",
+              where: {
+                StockStatus: false,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const segments3 = await sequelizeServer.models.Segments.count({
+      where: {
+        UserID: UserID,
+      },
+      distinct: true,
+      include: [
+        {
+          distinct: true,
+          model: sequelizeServer.models.Segment_Products,
+          as: "Segment_Products",
+          include: [
+            {
+              distinct: true,
+              model: sequelizeServer?.models?.Products,
+              as: "Product",
+              include: [
+                {
+                  distinct: true,
+                  model: sequelizeServer?.models?.alerts,
+                  as: "alerts",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const outOfStockProductsResult = segments2.map(
+      (seg) => seg?.Segment_Products
+    );
+
+    const countofalerts = segments3;
+
+    const result = segments.map((segment) => ({
       segment: segment,
       products: segment.products,
+      outOfStockProducts: outOfStockProductsResult,
+      countofalerts: countofalerts,
     }));
+
+    return result;
   } catch (error) {
     throw error;
   }

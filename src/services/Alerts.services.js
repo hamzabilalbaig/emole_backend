@@ -167,16 +167,6 @@ async function readAlert(ids, read) {
 
 async function getAlertAndSetRead(id) {
   try {
-    await sequelizeServer?.models?.alerts?.update(
-      {
-        read: true,
-      },
-      {
-        where: {
-          id: id,
-        },
-      }
-    );
     const alert = await sequelizeServer?.models?.alerts?.findOne({
       where: {
         id: id,
