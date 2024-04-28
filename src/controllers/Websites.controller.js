@@ -3,6 +3,7 @@ const {
   getWebsites,
   getProductByWebsiteId,
   getProductsCountByWebsiteId,
+  editWebsiteName,
 } = require("../services/Websites.services");
 
 async function GetWebsitesByUserId(req, res, next) {
@@ -76,9 +77,28 @@ async function GetProductsCountByWebsiteId(req, res, next) {
   }
 }
 
+async function EditWebsiteName(req, res, next) {
+  try {
+    const { id, name } = req.body;
+    const website = await editWebsiteName(id, name);
+    res.status(200).json({
+      success: true,
+      website: website,
+      message: "website name edited successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error,
+      message: "Unexpected error while editing the website name" + error,
+    });
+  }
+}
+
 module.exports = {
   GetWebsitesByUserId,
   GetAllWebsites,
   GetProductByWebsiteId,
   GetProductsCountByWebsiteId,
+  EditWebsiteName,
 };

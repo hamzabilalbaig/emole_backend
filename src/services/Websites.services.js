@@ -32,7 +32,6 @@ async function getWebsiteByUserId(id) {
                 {
                   model: sequelizeServer?.models?.Segment_Products,
                   as: "Segment_Products",
-
                   include: [
                     {
                       model: sequelizeServer?.models?.Segments,
@@ -52,9 +51,13 @@ async function getWebsiteByUserId(id) {
     });
 
     const websiteWithCounts = websites.map((website) => {
-      const alerts = website.Pages[0]?.Products[0]?.alerts || [];
-      const segments = website.Pages[0]?.Products[0]?.User_Segments || [];
-      const products = website.Pages[0]?.Products || [];
+      const alerts = website.Pages.flatMap((page) =>
+        page.Products.flatMap((product) => product.alerts || [])
+      );
+      const segments = website.Pages.flatMap((page) =>
+        page.Products.flatMap((product) => product.User_Segments || [])
+      );
+      const products = website.Pages.flatMap((page) => page.Products || []);
       const totalProducts = products.length;
       const trueStockProducts = products.filter(
         (product) => product.StockStatus === true
@@ -71,9 +74,9 @@ async function getWebsiteByUserId(id) {
         totalProducts: totalProducts,
         inStockProducts: trueStockProducts,
         outOfStockProducts: falseStockProducts,
-        products: products, // Include associated products
-        alerts: alerts, // Include associated alerts
-        segments: segments, // Include associated segments
+        products: products,
+        alerts: alerts,
+        segments: segments,
       };
     });
 
@@ -169,10 +172,23 @@ async function getProductsCountByWebsiteId(id, UserID) {
   }
 }
 
+async function editWebsiteName(websiteId, name) {
+  try {
+    const website = await sequelizeServer.models.Websites.update(
+      { Name: name },
+      { where: { WebsiteID: websiteId } }
+    );
+    return website;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getWebsites,
   getWebsiteByUserId,
 
   getProductByWebsiteId,
   getProductsCountByWebsiteId,
+  editWebsiteName,
 };

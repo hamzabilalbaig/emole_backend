@@ -87,38 +87,29 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
           ],
         },
       ];
-    } else {
-      filterOptions.include = [
-        {
-          model: sequelizeServer.models.Segment_Products,
-          as: "Segment_Products",
-          include: [
-            {
-              model: sequelizeServer.models.Segments,
-              as: "Group",
-            },
-          ],
-        },
-      ];
     }
 
     // Calculate total product count after filters are applied
     const totalFilteredProducts =
       await sequelizeServer.models.User_Products.count({
         where: { UserID: userId },
+        required: true,
         include: [
           {
             model: sequelizeServer.models.Products,
             as: "Product",
             where: { ...filterOptions.where },
+            required: true,
             include: [
               {
                 model: sequelizeServer.models.Pages,
                 as: "Page",
+                required: true,
                 include: [
                   {
                     model: sequelizeServer.models.Websites,
                     as: "Website",
+                    required: true,
                   },
                 ],
               },
@@ -224,6 +215,18 @@ async function deleteProduct(ids, userID) {
         return alert;
       })
     );
+
+    const results2 = await Promise.all(
+      ids.map(async (id) => {
+        const alert = await sequelizeServer?.models?.Segment_products?.destroy({
+          where: {
+            ProductID: id,
+          },
+        });
+        return alert;
+      })
+    );
+
     return results;
   } catch (error) {
     throw error;

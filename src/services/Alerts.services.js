@@ -179,9 +179,104 @@ async function getAlertAndSetRead(id) {
   }
 }
 
+async function getLatestAlerts(UserID) {
+  try {
+    const alerts = await sequelizeServer.models.alerts.findAll({
+      order: [["createdAt", "DESC"]],
+      where: {
+        read: false,
+      },
+      include: [
+        {
+          model: sequelizeServer.models.Products,
+          as: "product",
+          include: [
+            {
+              model: sequelizeServer.models.User_Products,
+              as: "User_Products",
+              where: {
+                UserID: UserID,
+              },
+              attributes: [],
+            },
+          ],
+        },
+      ],
+    });
+    return alerts;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function getLatestPriceAlerts(UserID) {
+  try {
+    const alerts = await sequelizeServer.models.alerts.findAll({
+      order: [["createdAt", "DESC"]],
+      where: {
+        read: false,
+        alert_type: "Price Change",
+      },
+      include: [
+        {
+          model: sequelizeServer.models.Products,
+          as: "product",
+          include: [
+            {
+              model: sequelizeServer.models.User_Products,
+              as: "User_Products",
+              where: {
+                UserID: UserID,
+              },
+              attributes: [],
+            },
+          ],
+        },
+      ],
+    });
+    return alerts;
+  } catch (error) {
+    return error;
+  }
+}
+
+async function getLatestStockAlerts(UserID) {
+  try {
+    const alerts = await sequelizeServer.models.alerts.findAll({
+      order: [["createdAt", "DESC"]],
+      where: {
+        read: false,
+        alert_type: "Stock Status Change",
+      },
+      include: [
+        {
+          model: sequelizeServer.models.Products,
+          as: "product",
+          include: [
+            {
+              model: sequelizeServer.models.User_Products,
+              as: "User_Products",
+              where: {
+                UserID: UserID,
+              },
+              attributes: [],
+            },
+          ],
+        },
+      ],
+    });
+    return alerts;
+  } catch (error) {
+    return error;
+  }
+}
+
 module.exports = {
   getAlertByUserID,
   deleteAlert,
   readAlert,
   getAlertAndSetRead,
+  getLatestAlerts,
+  getLatestPriceAlerts,
+  getLatestStockAlerts,
 };

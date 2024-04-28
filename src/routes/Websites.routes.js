@@ -4,6 +4,7 @@ const {
   GetWebsitesByUserId,
   GetProductsCountByWebsiteId,
   GetProductByWebsiteId,
+  EditWebsiteName,
 } = require("../controllers/Websites.controller");
 const { isAuthenticated } = require("../middlewares/auth");
 
@@ -17,5 +18,6 @@ router.post(
   GetProductsCountByWebsiteId
 );
 router.post("/getProductByWebsiteId", isAuthenticated, GetProductByWebsiteId);
+router.post("/editWebsiteName", isAuthenticated, EditWebsiteName);
 
 module.exports = router;

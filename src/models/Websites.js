@@ -23,7 +23,7 @@ module.exports = function(sequelize, DataTypes) {
   }, {
     sequelize,
     tableName: 'Websites',
-    timestamps: false,
+    timestamps: true,
     indexes: [
       {
         name: "PRIMARY",

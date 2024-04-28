@@ -3,6 +3,9 @@ const {
   deleteAlert,
   readAlert,
   getAlertAndSetRead,
+  getLatestAlerts,
+  getLatestPriceAlerts,
+  getLatestStockAlerts,
 } = require("../services/Alerts.services");
 
 async function GetAlertByUserID(req, res) {
@@ -46,9 +49,39 @@ async function GetAlertAndSetRead(req, res) {
   }
 }
 
+async function GetLatestAlerts(req, res) {
+  try {
+    const alert = await getLatestAlerts(req.user.UserID);
+    res.status(200).json(alert);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+async function GetLatestPriceAlerts(req, res) {
+  try {
+    const alert = await getLatestPriceAlerts(req.user.UserID);
+    res.status(200).json(alert);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+async function GetLatestStockAlerts(req, res) {
+  try {
+    const alert = await getLatestStockAlerts(req.user.UserID);
+    res.status(200).json(alert);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   GetAlertByUserID,
   DeleteAlert,
   ReadAlert,
   GetAlertAndSetRead,
+  GetLatestAlerts,
+  GetLatestPriceAlerts,
+  GetLatestStockAlerts,
 };
