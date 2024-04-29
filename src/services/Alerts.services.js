@@ -271,6 +271,45 @@ async function getLatestStockAlerts(UserID) {
   }
 }
 
+async function getMostAlertedProducts(UserID) {
+  try {
+    const mostAlertedProducts = await sequelizeServer.models.Products.findAll({
+      attributes: [
+        "CreatedAt",
+        "ProductID",
+        [
+          sequelizeServer.literal(
+            "(SELECT COUNT(*) FROM alerts WHERE alerts.product_id = Products.ProductID AND alerts.read = false)"
+          ),
+          "alertCount",
+        ],
+      ],
+      include: [
+        {
+          model: sequelizeServer.models.User_Products,
+          as: "User_Products",
+          where: {
+            UserID: UserID,
+          },
+
+          include: [
+            {
+              model: sequelizeServer.models.Products,
+              as: "Product",
+            },
+          ],
+        },
+      ],
+      having: sequelizeServer.literal("alertCount > 0"), // Filter out products with 0 alerts
+      order: [[sequelizeServer.literal("alertCount"), "DESC"]],
+    });
+
+    return mostAlertedProducts;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getAlertByUserID,
   deleteAlert,
@@ -279,4 +318,5 @@ module.exports = {
   getLatestAlerts,
   getLatestPriceAlerts,
   getLatestStockAlerts,
+  getMostAlertedProducts,
 };
