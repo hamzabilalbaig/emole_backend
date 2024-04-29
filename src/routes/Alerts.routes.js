@@ -10,6 +10,7 @@ const {
   GetLatestStockAlerts,
   GetMostAlertedProducts,
   GetMostAlertedSegments,
+  GetMostAlertedWebsites,
 } = require("../controllers/Alerts.controller");
 const router = express.Router();
 
@@ -22,5 +23,6 @@ router.get("/getLatestPriceAlerts", isAuthenticated, GetLatestPriceAlerts);
 router.get("/getLatestStockAlerts", isAuthenticated, GetLatestStockAlerts);
 router.get("/getMostAlertedProducts", isAuthenticated, GetMostAlertedProducts);
 router.get("/getMostAlertedSegments", isAuthenticated, GetMostAlertedSegments);
+router.get("/getMostAlertedWebsites", isAuthenticated, GetMostAlertedWebsites);
 
 module.exports = router;

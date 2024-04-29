@@ -343,10 +343,92 @@ async function getMostAlertedSegments(UserID) {
           ],
         ],
         group: ["GroupID"],
+        having: sequelizeServer.literal("alertCount > 0"),
         order: [[sequelizeServer.literal("alertCount"), "DESC"]],
       });
 
     return mostAlertedSegments;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getMostAlertedWebsites(UserID) {
+  try {
+    // const mostAlertedProducts = await sequelizeServer.models.Products.findAll({
+    //   attributes: [
+    //     "CreatedAt",
+    //     "ProductID",
+    //     [
+    //       sequelizeServer.literal(
+    //         "(SELECT COUNT(*) FROM alerts WHERE alerts.product_id = Products.ProductID AND alerts.read = false)"
+    //       ),
+    //       "alertCount",
+    //     ],
+    //   ],
+    //   include: [
+    //     {
+    //       model: sequelizeServer.models.User_Products,
+    //       as: "User_Products",
+    //       where: {
+    //         UserID: UserID,
+    //       },
+
+    //       include: [
+    //         {
+    //           model: sequelizeServer.models.Products,
+    //           as: "Product",
+    //         },
+    //       ],
+    //     },
+    //   ],
+    //   having: sequelizeServer.literal("alertCount > 0"), // Filter out products with 0 alerts
+    //   order: [[sequelizeServer.literal("alertCount"), "DESC"]],
+    // });
+    const mostAlertedWebsites = await sequelizeServer.models.Websites.findAll({
+      include: [
+        {
+          model: sequelizeServer.models.Pages,
+          as: "Pages",
+          include: [
+            {
+              model: sequelizeServer.models.Products,
+              as: "Products",
+
+              include: [
+                {
+                  model: sequelizeServer.models.User_Products,
+                  as: "User_Products",
+                  where: {
+                    UserID: UserID,
+                  },
+                },
+                {
+                  model: sequelizeServer.models.alerts,
+                  as: "alerts",
+                  where: {
+                    read: false,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+      attributes: [
+        "WebsiteID",
+        [
+          sequelizeServer.literal(
+            "(SELECT COUNT(*) FROM alerts WHERE alerts.product_id IN (SELECT ProductID FROM Products WHERE Products.PageID IN (SELECT PageID FROM Pages WHERE Pages.WebsiteID = Websites.WebsiteID)) AND alerts.read = false)"
+          ),
+          "alertCount",
+        ],
+      ],
+      group: ["WebsiteID"], // Group by WebsiteID to get the count of alerts for each website
+      order: [[sequelizeServer.literal("alertCount"), "DESC"]],
+    });
+
+    return mostAlertedWebsites;
   } catch (error) {
     throw error;
   }
@@ -362,4 +444,5 @@ module.exports = {
   getLatestStockAlerts,
   getMostAlertedProducts,
   getMostAlertedSegments,
+  getMostAlertedWebsites,
 };
