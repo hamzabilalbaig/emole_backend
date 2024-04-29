@@ -155,7 +155,7 @@ async function getSegmentsByUserId(UserID) {
     // const countofalerts = segments3;
 
     const result = segments.map((segment) => ({
-      // segment: segment,
+      segment: segment,
       products: segment?.Segment_Products?.map((product) => product?.Product),
       outOfStockProducts: segment?.Segment_Products?.filter(
         (product) => product?.Product?.StockStatus !== false
