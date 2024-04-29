@@ -6,6 +6,7 @@ const {
   GetSegmnetsByProductId,
   DeleteProducts,
   RecentlyUpdatedProducts,
+  Getgroupsofproductbyproductid,
 } = require("../controllers/Products.controller");
 const { isAuthenticated } = require("../middlewares/auth");
 
@@ -20,6 +21,11 @@ router.get(
   "/getRecentlyUpdatedProducts",
   isAuthenticated,
   RecentlyUpdatedProducts
+);
+router.post(
+  "/getgroupsofproductbyproductid",
+  isAuthenticated,
+  Getgroupsofproductbyproductid
 );
 
 module.exports = router;

@@ -457,6 +457,25 @@ async function recentlyUpdatedProducts(userID) {
   }
 }
 
+async function getgroupsofproductbyproductid(id) {
+  try {
+    const product = await sequelizeServer.models.Segment_Products.findAll({
+      where: {
+        ProductID: id,
+      },
+      include: [
+        {
+          model: sequelizeServer.models.Segments,
+          as: "Group",
+        },
+      ],
+    });
+    return product;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getProducts,
   getProductById,
@@ -470,4 +489,5 @@ module.exports = {
   getCounts,
   getSegmnetsByProductId,
   recentlyUpdatedProducts,
+  getgroupsofproductbyproductid,
 };
