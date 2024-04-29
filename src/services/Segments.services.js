@@ -84,51 +84,11 @@ async function getSegmentsByUserId(UserID) {
           model: sequelizeServer.models.Segment_Products,
           as: "Segment_Products",
           include: [
-            { model: sequelizeServer?.models?.Products, as: "Product" },
-          ],
-        },
-      ],
-    });
-
-    const segments2 = await sequelizeServer.models.Segments.findAll({
-      where: {
-        UserID: UserID,
-      },
-      include: [
-        {
-          model: sequelizeServer.models.Segment_Products,
-          as: "Segment_Products",
-          include: [
             {
-              model: sequelizeServer?.models?.Products,
-              as: "Product",
-              where: {
-                StockStatus: false,
-              },
-            },
-          ],
-        },
-      ],
-    });
-
-    const segments3 = await sequelizeServer.models.Segments.count({
-      where: {
-        UserID: UserID,
-      },
-      distinct: true,
-      include: [
-        {
-          distinct: true,
-          model: sequelizeServer.models.Segment_Products,
-          as: "Segment_Products",
-          include: [
-            {
-              distinct: true,
               model: sequelizeServer?.models?.Products,
               as: "Product",
               include: [
                 {
-                  distinct: true,
                   model: sequelizeServer?.models?.alerts,
                   as: "alerts",
                 },
@@ -139,17 +99,71 @@ async function getSegmentsByUserId(UserID) {
       ],
     });
 
-    const outOfStockProductsResult = segments2.map(
-      (seg) => seg?.Segment_Products
-    );
+    // const segments2 = await sequelizeServer.models.Segments.findAll({
+    //   where: {
+    //     UserID: UserID,
+    //   },
+    //   include: [
+    //     {
+    //       model: sequelizeServer.models.Segment_Products,
+    //       as: "Segment_Products",
+    //       include: [
+    //         {
+    //           model: sequelizeServer?.models?.Products,
+    //           as: "Product",
+    //           where: {
+    //             StockStatus: false,
+    //           },
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // });
 
-    const countofalerts = segments3;
+    // const segments3 = await sequelizeServer.models.Segments.count({
+    //   where: {
+    //     UserID: UserID,
+    //   },
+    //   distinct: true,
+    //   include: [
+    //     {
+    //       distinct: true,
+    //       model: sequelizeServer.models.Segment_Products,
+    //       as: "Segment_Products",
+    //       include: [
+    //         {
+    //           distinct: true,
+    //           model: sequelizeServer?.models?.Products,
+    //           as: "Product",
+    //           include: [
+    //             {
+    //               distinct: true,
+    //               model: sequelizeServer?.models?.alerts,
+    //               as: "alerts",
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // });
+
+    // const outOfStockProductsResult = segments2.map(
+    //   (seg) => seg?.Segment_Products
+    // );
+
+    // const countofalerts = segments3;
 
     const result = segments.map((segment) => ({
-      segment: segment,
-      products: segment.products,
-      outOfStockProducts: outOfStockProductsResult,
-      countofalerts: countofalerts,
+      // segment: segment,
+      products: segment?.Segment_Products?.map((product) => product?.Product),
+      outOfStockProducts: segment?.Segment_Products?.filter(
+        (product) => product?.Product?.StockStatus !== false
+      ).length,
+      countOfTotalProductsAlerts: segment?.Segment_Products?.reduce(
+        (acc, product) => acc + product?.Product?.alerts?.length,
+        0
+      ),
     }));
 
     return result;
