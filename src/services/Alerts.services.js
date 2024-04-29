@@ -276,6 +276,18 @@ async function getMostAlertedProducts(UserID) {
     const mostAlertedProducts = await sequelizeServer.models.Products.findAll({
       attributes: [
         "CreatedAt",
+        "Name",
+        "Description",
+        "Price",
+        "currency",
+        "LastPrice",
+        "Category",
+        "StockStatus",
+        "OutOfStockCount",
+        "UpdatedAt",
+        "product_url",
+        "Tags",
+        "Images",
         "ProductID",
         [
           sequelizeServer.literal(
@@ -284,22 +296,7 @@ async function getMostAlertedProducts(UserID) {
           "alertCount",
         ],
       ],
-      include: [
-        {
-          model: sequelizeServer.models.User_Products,
-          as: "User_Products",
-          where: {
-            UserID: UserID,
-          },
 
-          include: [
-            {
-              model: sequelizeServer.models.Products,
-              as: "Product",
-            },
-          ],
-        },
-      ],
       having: sequelizeServer.literal("alertCount > 0"), // Filter out products with 0 alerts
       order: [[sequelizeServer.literal("alertCount"), "DESC"]],
     });
