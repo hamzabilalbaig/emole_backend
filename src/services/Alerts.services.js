@@ -310,6 +310,48 @@ async function getMostAlertedProducts(UserID) {
   }
 }
 
+async function getMostAlertedSegments(UserID) {
+  try {
+    const mostAlertedSegments =
+      await sequelizeServer.models.Segment_Products.findAll({
+        include: [
+          {
+            model: sequelizeServer.models.Segments,
+            as: "Group",
+          },
+          {
+            model: sequelizeServer.models.Products,
+            as: "Product",
+            include: [
+              {
+                model: sequelizeServer.models.User_Products,
+                as: "User_Products",
+                where: {
+                  UserID: UserID,
+                },
+              },
+            ],
+          },
+        ],
+        attributes: [
+          "GroupID",
+          [
+            sequelizeServer.literal(
+              "(SELECT COUNT(*) FROM alerts WHERE alerts.product_id = Segment_Products.ProductID AND alerts.read = false)"
+            ),
+            "alertCount",
+          ],
+        ],
+        group: ["GroupID"],
+        order: [[sequelizeServer.literal("alertCount"), "DESC"]],
+      });
+
+    return mostAlertedSegments;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getAlertByUserID,
   deleteAlert,
@@ -319,4 +361,5 @@ module.exports = {
   getLatestPriceAlerts,
   getLatestStockAlerts,
   getMostAlertedProducts,
+  getMostAlertedSegments,
 };

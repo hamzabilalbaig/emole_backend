@@ -7,6 +7,7 @@ const {
   getLatestPriceAlerts,
   getLatestStockAlerts,
   getMostAlertedProducts,
+  getMostAlertedSegments,
 } = require("../services/Alerts.services");
 
 async function GetAlertByUserID(req, res) {
@@ -86,6 +87,15 @@ async function GetMostAlertedProducts(req, res) {
   }
 }
 
+async function GetMostAlertedSegments(req, res) {
+  try {
+    const alert = await getMostAlertedSegments(req.user.UserID);
+    res.status(200).json(alert);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
 module.exports = {
   GetAlertByUserID,
   DeleteAlert,
@@ -95,4 +105,5 @@ module.exports = {
   GetLatestPriceAlerts,
   GetLatestStockAlerts,
   GetMostAlertedProducts,
+  GetMostAlertedSegments,
 };
