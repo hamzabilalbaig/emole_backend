@@ -449,6 +449,7 @@ async function recentlyUpdatedProducts(userID) {
           order: [["UpdatedAt", "DESC"]],
         },
       ],
+      limit: 5,
     });
     return products;
   } catch (error) {
