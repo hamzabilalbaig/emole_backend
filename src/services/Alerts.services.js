@@ -315,6 +315,9 @@ async function getMostAlertedSegments(UserID) {
           {
             model: sequelizeServer.models.Segments,
             as: "Group",
+            where: {
+              UserID: UserID,
+            },
           },
           {
             model: sequelizeServer.models.Products,
@@ -323,9 +326,6 @@ async function getMostAlertedSegments(UserID) {
               {
                 model: sequelizeServer.models.User_Products,
                 as: "User_Products",
-                where: {
-                  UserID: UserID,
-                },
               },
             ],
           },
@@ -414,6 +414,10 @@ async function getMostAlertedWebsites(UserID) {
       ],
       attributes: [
         "WebsiteID",
+        "Name",
+        "URL",
+        "Description",
+
         [
           sequelizeServer.literal(
             "(SELECT COUNT(*) FROM alerts WHERE alerts.product_id IN (SELECT ProductID FROM Products WHERE Products.PageID IN (SELECT PageID FROM Pages WHERE Pages.WebsiteID = Websites.WebsiteID)) AND alerts.read = false)"

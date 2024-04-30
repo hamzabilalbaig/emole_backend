@@ -204,7 +204,7 @@ async function updateProduct(product) {
 
 async function deleteProduct(ids, userID) {
   try {
-    const results = await Promise.all(
+    await Promise.all(
       ids.map(async (id) => {
         const alert = await sequelizeServer?.models?.User_Products?.destroy({
           where: {
@@ -216,7 +216,7 @@ async function deleteProduct(ids, userID) {
       })
     );
 
-    const results2 = await Promise.all(
+    await Promise.all(
       ids.map(async (id) => {
         const alert = await sequelizeServer?.models?.Segment_Products?.destroy({
           where: {
@@ -227,7 +227,29 @@ async function deleteProduct(ids, userID) {
       })
     );
 
-    return results2;
+    await Promise.all(
+      ids.map(async (id) => {
+        const alert = await sequelizeServer?.models?.alerts?.destroy({
+          where: {
+            product_id: id,
+          },
+        });
+        return alert;
+      })
+    );
+
+    const results4 = await Promise.all(
+      ids.map(async (id) => {
+        const alert = await sequelizeServer?.models?.Products?.destroy({
+          where: {
+            ProductID: id,
+          },
+        });
+        return alert;
+      })
+    );
+
+    return results4;
   } catch (error) {
     throw error;
   }
