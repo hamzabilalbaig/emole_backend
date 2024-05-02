@@ -186,18 +186,20 @@ async function getLatestAlerts(UserID) {
       where: {
         read: false,
       },
+      required: true,
       include: [
         {
+          required: true,
           model: sequelizeServer.models.Products,
           as: "product",
           include: [
             {
+              required: true,
               model: sequelizeServer.models.User_Products,
               as: "User_Products",
               where: {
                 UserID: UserID,
               },
-              attributes: [],
             },
           ],
         },
@@ -228,7 +230,6 @@ async function getLatestPriceAlerts(UserID) {
               where: {
                 UserID: UserID,
               },
-              attributes: [],
             },
           ],
         },
@@ -259,7 +260,6 @@ async function getLatestStockAlerts(UserID) {
               where: {
                 UserID: UserID,
               },
-              attributes: [],
             },
           ],
         },
