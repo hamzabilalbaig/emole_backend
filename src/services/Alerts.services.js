@@ -182,6 +182,7 @@ async function getAlertAndSetRead(id) {
 async function getLatestAlerts(UserID) {
   try {
     const alerts = await sequelizeServer.models.alerts.findAll({
+      limit: 5,
       order: [["createdAt", "DESC"]],
       where: {
         read: false,
@@ -214,6 +215,7 @@ async function getLatestAlerts(UserID) {
 async function getLatestPriceAlerts(UserID) {
   try {
     const alerts = await sequelizeServer.models.alerts.findAll({
+      limit: 5,
       order: [["createdAt", "DESC"]],
       where: {
         read: false,
@@ -244,6 +246,7 @@ async function getLatestPriceAlerts(UserID) {
 async function getLatestStockAlerts(UserID) {
   try {
     const alerts = await sequelizeServer.models.alerts.findAll({
+      limit: 5,
       order: [["createdAt", "DESC"]],
       where: {
         read: false,
@@ -296,9 +299,19 @@ async function getMostAlertedProducts(UserID) {
           "alertCount",
         ],
       ],
-
+      required: true,
+      include: [
+        {
+          model: sequelizeServer.models.User_Products,
+          as: "User_Products",
+          where: {
+            UserID: UserID,
+          },
+        },
+      ],
       having: sequelizeServer.literal("alertCount > 0"), // Filter out products with 0 alerts
       order: [[sequelizeServer.literal("alertCount"), "DESC"]],
+      limit: 5,
     });
 
     return mostAlertedProducts;
@@ -311,8 +324,10 @@ async function getMostAlertedSegments(UserID) {
   try {
     const mostAlertedSegments =
       await sequelizeServer.models.Segment_Products.findAll({
+        required: true,
         include: [
           {
+            required: true,
             model: sequelizeServer.models.Segments,
             as: "Group",
             where: {
@@ -320,12 +335,17 @@ async function getMostAlertedSegments(UserID) {
             },
           },
           {
+            required: true,
             model: sequelizeServer.models.Products,
             as: "Product",
             include: [
               {
+                required: true,
                 model: sequelizeServer.models.User_Products,
                 as: "User_Products",
+                where: {
+                  UserID: UserID,
+                },
               },
             ],
           },
@@ -342,6 +362,7 @@ async function getMostAlertedSegments(UserID) {
         group: ["GroupID"],
         having: sequelizeServer.literal("alertCount > 0"),
         order: [[sequelizeServer.literal("alertCount"), "DESC"]],
+        limit: 5,
       });
 
     return mostAlertedSegments;
@@ -383,17 +404,24 @@ async function getMostAlertedWebsites(UserID) {
     //   order: [[sequelizeServer.literal("alertCount"), "DESC"]],
     // });
     const mostAlertedWebsites = await sequelizeServer.models.Websites.findAll({
+      required: true,
       include: [
         {
+          required: true,
+
           model: sequelizeServer.models.Pages,
           as: "Pages",
           include: [
             {
+              required: true,
+
               model: sequelizeServer.models.Products,
               as: "Products",
 
               include: [
                 {
+                  required: true,
+
                   model: sequelizeServer.models.User_Products,
                   as: "User_Products",
                   where: {
@@ -401,6 +429,8 @@ async function getMostAlertedWebsites(UserID) {
                   },
                 },
                 {
+                  required: true,
+
                   model: sequelizeServer.models.alerts,
                   as: "alerts",
                   where: {
@@ -427,6 +457,7 @@ async function getMostAlertedWebsites(UserID) {
       ],
       group: ["WebsiteID"], // Group by WebsiteID to get the count of alerts for each website
       order: [[sequelizeServer.literal("alertCount"), "DESC"]],
+      limit: 5,
     });
 
     return mostAlertedWebsites;
