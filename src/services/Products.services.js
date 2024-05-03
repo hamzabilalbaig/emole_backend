@@ -40,6 +40,14 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
       where: {},
     };
 
+    const filterOptions2 = {
+      where: {},
+    };
+
+    if (filters?.URL) {
+      filterOptions2.where.URL = filters.URL;
+    }
+
     // Add price range filter
     if (filters?.productPrice) {
       const { minPrice, maxPrice } = filters.productPrice;
@@ -110,6 +118,9 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
                     model: sequelizeServer.models.Websites,
                     as: "Website",
                     required: true,
+                    where: {
+                      URL: filters.URL ? filters.URL : { [Op.ne]: null },
+                    },
                   },
                 ],
               },
@@ -129,15 +140,24 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
         {
           model: sequelizeServer.models.Products,
           as: "Product",
-          where: { ...filterOptions.where },
+          required: true,
+          where: {
+            ...filterOptions.where,
+            // Filter out products where the URL does not match
+          },
           include: [
             {
+              required: true,
               model: sequelizeServer.models.Pages,
               as: "Page",
               include: [
                 {
                   model: sequelizeServer.models.Websites,
                   as: "Website",
+                  required: true,
+                  where: {
+                    URL: filters.URL ? filters.URL : { [Op.ne]: null },
+                  },
                 },
               ],
             },
