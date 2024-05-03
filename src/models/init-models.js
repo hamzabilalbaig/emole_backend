@@ -9,6 +9,7 @@ var _User_Products = require("./User_Products");
 var _Users = require("./Users");
 var _Websites = require("./Websites");
 var _alerts = require("./alerts");
+var _product_history = require("./product_history");
 
 function initModels(sequelize) {
   var Billing = _Billing(sequelize, DataTypes);
@@ -21,6 +22,7 @@ function initModels(sequelize) {
   var Users = _Users(sequelize, DataTypes);
   var Websites = _Websites(sequelize, DataTypes);
   var alerts = _alerts(sequelize, DataTypes);
+  var product_history = _product_history(sequelize, DataTypes);
 
   Products.belongsTo(Pages, { as: "Page", foreignKey: "PageID"});
   Pages.hasMany(Products, { as: "Products", foreignKey: "PageID"});
@@ -34,6 +36,8 @@ function initModels(sequelize) {
   Products.hasMany(User_Products, { as: "User_Products", foreignKey: "ProductID"});
   alerts.belongsTo(Products, { as: "product", foreignKey: "product_id"});
   Products.hasMany(alerts, { as: "alerts", foreignKey: "product_id"});
+  product_history.belongsTo(Products, { as: "product", foreignKey: "product_id"});
+  Products.hasMany(product_history, { as: "product_histories", foreignKey: "product_id"});
   Segment_Products.belongsTo(Segments, { as: "Group", foreignKey: "GroupID"});
   Segments.hasMany(Segment_Products, { as: "Segment_Products", foreignKey: "GroupID"});
   Billing.belongsTo(Users, { as: "User", foreignKey: "UserID"});
@@ -56,6 +60,7 @@ function initModels(sequelize) {
     Users,
     Websites,
     alerts,
+    product_history,
   };
 }
 module.exports = initModels;

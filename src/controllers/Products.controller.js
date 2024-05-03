@@ -8,6 +8,7 @@ const {
   deleteProduct,
   recentlyUpdatedProducts,
   getgroupsofproductbyproductid,
+  getProductsHistory,
 } = require("../services/Products.services");
 
 async function GetProducts(req, res, next) {
@@ -172,6 +173,23 @@ async function Getgroupsofproductbyproductid(req, res) {
   }
 }
 
+async function GetProductsHistory(req, res) {
+  try {
+    const products = await getProductsHistory(req?.user?.UserID);
+    res.status(200).json({
+      success: true,
+      products: products,
+      message: "Products fetched successfully",
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      success: false,
+      message: "Unexpected error while fetching products" + error,
+    });
+  }
+}
+
 module.exports = {
   GetProducts,
   GetProductById,
@@ -182,4 +200,5 @@ module.exports = {
   DeleteProducts,
   RecentlyUpdatedProducts,
   Getgroupsofproductbyproductid,
+  GetProductsHistory,
 };

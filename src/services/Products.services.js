@@ -498,6 +498,33 @@ async function getgroupsofproductbyproductid(id) {
   }
 }
 
+async function getProductsHistory(UserID) {
+  try {
+    const history = await sequelizeServer.models.product_history.findAll({
+      include: [
+        {
+          model: sequelizeServer.models.Products,
+          as: "product",
+          required: true,
+          include: [
+            {
+              model: sequelizeServer.models.User_Products,
+              as: "User_Products",
+              required: true,
+              where: {
+                UserID: UserID,
+              },
+            },
+          ],
+        },
+      ],
+    });
+    return history;
+  } catch (error) {
+    throw error;
+  }
+}
+
 module.exports = {
   getProducts,
   getProductById,
@@ -512,4 +539,5 @@ module.exports = {
   getSegmnetsByProductId,
   recentlyUpdatedProducts,
   getgroupsofproductbyproductid,
+  getProductsHistory,
 };

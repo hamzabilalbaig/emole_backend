@@ -7,6 +7,7 @@ const {
   DeleteProducts,
   RecentlyUpdatedProducts,
   Getgroupsofproductbyproductid,
+  GetProductsHistory,
 } = require("../controllers/Products.controller");
 const { isAuthenticated } = require("../middlewares/auth");
 
@@ -27,5 +28,7 @@ router.post(
   isAuthenticated,
   Getgroupsofproductbyproductid
 );
+
+router.get("/getProductsHistory", isAuthenticated, GetProductsHistory);
 
 module.exports = router;
