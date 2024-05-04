@@ -175,7 +175,12 @@ async function Getgroupsofproductbyproductid(req, res) {
 
 async function GetProductsHistory(req, res) {
   try {
-    const products = await getProductsHistory(req?.user?.UserID);
+    const products = await getProductsHistory(
+      req?.user?.UserID,
+      req.body.id,
+      req.body.page,
+      req.body.pageSize
+    );
     res.status(200).json({
       success: true,
       products: products,

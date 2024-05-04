@@ -119,7 +119,7 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
                     as: "Website",
                     required: true,
                     where: {
-                      URL: filters.URL ? filters.URL : { [Op.ne]: null },
+                      WebsiteID: filters.URL ? filters.URL : { [Op.ne]: null },
                     },
                   },
                 ],
@@ -156,7 +156,7 @@ async function getProductsByUserID(userId, page, pageSize, filters) {
                   as: "Website",
                   required: true,
                   where: {
-                    URL: filters.URL ? filters.URL : { [Op.ne]: null },
+                    WebsiteID: filters.URL ? filters.URL : { [Op.ne]: null },
                   },
                 },
               ],
@@ -518,28 +518,47 @@ async function getgroupsofproductbyproductid(id) {
   }
 }
 
-async function getProductsHistory(UserID) {
+async function getProductsHistory(UserID, id, page, pageSize) {
   try {
-    const history = await sequelizeServer.models.product_history.findAll({
-      include: [
-        {
-          model: sequelizeServer.models.Products,
-          as: "product",
-          required: true,
-          include: [
-            {
-              model: sequelizeServer.models.User_Products,
-              as: "User_Products",
-              required: true,
-              where: {
-                UserID: UserID,
-              },
-            },
-          ],
+    // Validate page and pageSize inputs
+    if (typeof page !== "number" || page <= 0) {
+      throw new Error("Invalid page number");
+    }
+    if (typeof pageSize !== "number" || pageSize <= 0) {
+      throw new Error("Invalid page size");
+    }
+    const offset = (page - 1) * pageSize;
+    const history =
+      await sequelizeServer.models.product_history.findAndCountAll({
+        where: {
+          product_id: id,
         },
-      ],
-    });
-    return history;
+        limit: pageSize,
+        offset: offset,
+        include: [
+          {
+            model: sequelizeServer.models.Products,
+            as: "product",
+            required: true,
+            include: [
+              {
+                model: sequelizeServer.models.User_Products,
+                as: "User_Products",
+                required: true,
+                where: {
+                  UserID: UserID,
+                },
+              },
+            ],
+          },
+        ],
+      });
+    const totalFilteredPages = Math.ceil(history.count / pageSize);
+    return {
+      history: history,
+      totalCount: history.count,
+      totalPages: totalFilteredPages,
+    };
   } catch (error) {
     throw error;
   }

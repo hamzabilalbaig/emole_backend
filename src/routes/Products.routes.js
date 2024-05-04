@@ -29,6 +29,6 @@ router.post(
   Getgroupsofproductbyproductid
 );
 
-router.get("/getProductsHistory", isAuthenticated, GetProductsHistory);
+router.post("/getProductsHistory", isAuthenticated, GetProductsHistory);
 
 module.exports = router;
