@@ -555,7 +555,7 @@ async function getProductsHistory(UserID, id, page, pageSize) {
       });
     const totalFilteredPages = Math.ceil(history.count / pageSize);
     return {
-      history: history,
+      history: history.rows,
       totalCount: history.count,
       totalPages: totalFilteredPages,
     };
