@@ -259,6 +259,17 @@ async function deleteProduct(ids, userID) {
       })
     );
 
+    await Promise.all(
+      ids.map(async (id) => {
+        const alert = await sequelizeServer?.models?.product_history?.destroy({
+          where: {
+            product_id: id,
+          },
+        });
+        return alert;
+      })
+    );
+
     const results4 = await Promise.all(
       ids.map(async (id) => {
         const alert = await sequelizeServer?.models?.Products?.destroy({
