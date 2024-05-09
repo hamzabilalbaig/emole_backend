@@ -88,6 +88,12 @@ async function AddUser(user) {
 
     var result = await sequelizeServer.models.Users.create(d);
 
+    await sequelizeServer.models.Billing.create({
+      UserID: result.UserID,
+      PlanID: 7,
+      Duration: "30",
+    });
+
     return result;
   } catch (error) {
     if (error == "email") {

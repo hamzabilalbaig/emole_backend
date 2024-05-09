@@ -70,7 +70,6 @@ async function getAlertByUserID(UserID, page, pageSize, filters) {
               where: {
                 UserID: UserID,
               },
-              attributes: [],
             },
           ],
         },

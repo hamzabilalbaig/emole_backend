@@ -1,5 +1,6 @@
 const { sequelizeServer } = require("../config/sequelize.config");
 const { Op } = require("sequelize");
+const alerts = require("../models/alerts");
 
 async function getProducts() {
   try {
@@ -445,11 +446,31 @@ async function getCounts(id) {
       ],
     });
 
+    const alertsCount = await sequelizeServer.models.alerts.count({
+      include: [
+        {
+          model: sequelizeServer.models.Products,
+          as: "product",
+          required: true,
+          include: [
+            {
+              model: sequelizeServer.models.User_Products,
+              as: "User_Products",
+              where: {
+                UserID: id,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
     return {
       products: products,
       stock: stock,
       group: groups,
       websites: websites,
+      alerts: alertsCount,
     };
   } catch (error) {
     throw error;
